@@ -23,28 +23,35 @@ export const getSpotifyAuthUrl = (): string => {
 };
 
 export const exchangeCodeForToken = async (code: string): Promise<string> => {
+  const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
   const CLIENT_SECRET = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;
+  const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
 
-  const response = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
+  const basic = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
+
+  const response = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": `Basic ${basic}`,
     },
     body: new URLSearchParams({
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
       code,
       redirect_uri: REDIRECT_URI,
     }),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error('Failed to exchange code for token');
+    console.error("Token exchange failed:", data);
+    throw new Error("Failed to exchange authorization code for token");
   }
 
-  const data = await response.json();
   return data.access_token;
 };
+
 
 export const storeAccessToken = (token: string) => {
   localStorage.setItem('spotify_access_token', token);
