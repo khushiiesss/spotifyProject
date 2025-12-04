@@ -87,7 +87,8 @@ export default function Callback() {
         setTimeout(() => navigate('/discover'), 1000);
       } catch (error) {
         console.error('Callback error:', error);
-        setStatus('Something went wrong. Redirecting...');
+        console.log(error);
+        setStatus('Something went wrong. Redirecting...: ' + error);
         setTimeout(() => navigate('/'), 2000);
       }
     };
