@@ -6,6 +6,8 @@ const SCOPES = [
   'user-top-read',
   'playlist-read-private',
   'playlist-read-collaborative',
+'user-read-recently-played'
+
 ].join(' ');
 
 export const getSpotifyAuthUrl = (): string => {
