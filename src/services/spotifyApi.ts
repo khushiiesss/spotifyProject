@@ -151,6 +151,11 @@ export const extractTopGenres = (artists: SpotifyArtist[]): GenreCount[] => {
     .slice(0, 20);
 };
 
+// ... imports remain the same
+
+// ... keep fetchUserProfile, fetchTopArtists, fetchTopTracks, fetchUserPlaylists, fetchAudioFeatures as they are
+
+// UPDATE THIS FUNCTION AT THE BOTTOM OF THE FILE
 export const fetchAllSpotifyData = async (accessToken: string) => {
   const [profile, topArtists, topTracks, playlists] = await Promise.all([
     fetchUserProfile(accessToken),
@@ -160,7 +165,27 @@ export const fetchAllSpotifyData = async (accessToken: string) => {
   ]);
 
   const trackIds = topTracks.map((track) => track.id);
-  const audioFeatures = await fetchAudioFeatures(accessToken, trackIds);
+  
+  // Initialize default features (all zeros)
+  let audioFeatures = {
+    avg_danceability: 0,
+    avg_energy: 0,
+    avg_valence: 0,
+    avg_acousticness: 0,
+    avg_instrumentalness: 0,
+  };
+
+  // Try to fetch features, but ignore the error if Spotify denies access (403)
+  try {
+    // Only attempt if we actually have tracks
+    if (trackIds.length > 0) {
+      audioFeatures = await fetchAudioFeatures(accessToken, trackIds);
+    }
+  } catch (error) {
+    console.warn('Audio features API restricted or failed. Using default values.', error);
+    // We intentionally swallow the error here so the login process completes
+  }
+
   const topGenres = extractTopGenres(topArtists);
 
   return {
